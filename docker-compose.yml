@@ -1,0 +1,60 @@
+version: '3.3'
+services:
+  db:
+    image: mysql
+    restart: always
+    ports:
+      - '32768:3306'
+    volumes:
+      - axonserver-event-store:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: axondb
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test
+
+
+
+  axonserver:
+    image: axoniq/axonserver
+    hostname: axonserver
+    volumes:
+      - axonserver-data:/data
+      - axonserver-events:/eventdata
+      - axonserver-config:/config:ro
+    ports:
+      - '8024:8024'
+      - '8124:8124'
+      - '8224:8224'
+    networks:
+      - axon-demo
+
+volumes:
+  axonserver-event-store:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${PWD}/datadir
+
+  axonserver-data:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${PWD}/data
+  axonserver-events:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${PWD}/events
+  axonserver-config:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ${PWD}/config
+
+networks:
+  axon-demo:
